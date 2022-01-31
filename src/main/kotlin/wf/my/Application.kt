@@ -1,15 +1,22 @@
 package wf.my
 
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import wf.my.plugins.*
+import io.ktor.server.application.Application
+import io.ktor.server.netty.EngineMain
+import wf.my.plugins.configureAdministration
+import wf.my.plugins.configureDI
+import wf.my.plugins.configureHTTP
+import wf.my.plugins.configureRouting
+import wf.my.plugins.configureSerialization
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        configureRouting()
-        configureSecurity()
-        configureHTTP()
-        configureSerialization()
-        configureAdministration()
-    }.start(wait = true)
+fun main(args: Array<String>): Unit = EngineMain.main(args)
+
+fun Application.module(testing: Boolean = false) {
+    configureDI()
+//    configureSecurity()
+    configureRouting()
+    configureHTTP()
+    configureSerialization()
+    configureAdministration()
 }
+
+

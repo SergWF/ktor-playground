@@ -1,40 +1,27 @@
 package wf.my.plugins
 
-import io.ktor.server.routing.*
-import io.ktor.http.*
-import io.ktor.server.locations.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.request.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.locations.Locations
+import io.ktor.server.routing.routing
+import org.koin.java.KoinJavaComponent.inject
+import wf.my.plugins.route.customerRoute
+import wf.my.plugins.route.rootRoute
+import wf.my.service.CustomerService
 
 fun Application.configureRouting() {
     install(Locations) {
     }
 
+    val customerService: CustomerService by inject(CustomerService::class.java)
+
+
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-        get<MyLocation> {
-            call.respondText("Location: name=${it.name}, arg1=${it.arg1}, arg2=${it.arg2}")
-        }
-        // Register nested routes
-        get<Type.Edit> {
-            call.respondText("Inside $it")
-        }
-        get<Type.List> {
-            call.respondText("Inside $it")
-        }
+        // no authentication requires
+        rootRoute()
+        // authentication requires
+//        authenticate() {
+        customerRoute(customerService)
+//        }
     }
-}
-
-@Location("/location/{name}")
-class MyLocation(val name: String, val arg1: Int = 42, val arg2: String = "default")
-@Location("/type/{name}")
-data class Type(val name: String) {
-    @Location("/edit")
-    data class Edit(val type: Type)
-
-    @Location("/list/{page}")
-    data class List(val type: Type, val page: Int)
 }
